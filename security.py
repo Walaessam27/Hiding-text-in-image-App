@@ -102,7 +102,7 @@ class TextInImage:
         
         decoded_message = self.decoding(self.inimage, self.lsb_count.get())
         if decoded_message:
-            messagebox.showinfo("Decoded Message from cover", decoded_message)
+            messagebox.showinfo("Decoded Message", decoded_message)
         else:
            
             if not self.res_image:
@@ -110,7 +110,7 @@ class TextInImage:
                 return
             decoded_message = self.decoding(self.res_image, self.lsb_count.get())
             if decoded_message:
-                messagebox.showinfo("text from cover", decoded_message)
+                messagebox.showinfo("text", decoded_message)
             else:
                 messagebox.showinfo("Decoded Message", "No message found.")
 
