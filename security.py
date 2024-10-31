@@ -1,3 +1,4 @@
+# the results folder has the saved images and the name of image is the hidden text on it.
 from tkinter import *
 from tkinter import filedialog, messagebox
 from PIL import Image, ImageTk
@@ -14,12 +15,14 @@ class TextInImage:
         self.res_image = None
         self.lsb_count = IntVar(value=1)
         self.creategui()
+        
     def creategui(self):
         frcontrol = Frame(self.window, bg="#e6f2ff")
         frcontrol.pack(pady=15)
         load_btn = Button(frcontrol, text="Select Image", command=self.chooseimage, width=20,
-                                bg="#008080", fg="white", font=("Arial", 12, "bold"), relief=FLAT)
+                          bg="#008080", fg="white", font=("Arial", 12, "bold"), relief=FLAT)
         load_btn.pack(side=LEFT, padx=10)
+        
         intext = Frame(self.window, bg="#e6f2ff")
         intext.pack(pady=10)
         Label(intext, text="Message to Hide:", bg="#e6f2ff", font=("Arial", 12)).pack()
@@ -33,6 +36,7 @@ class TextInImage:
         Radiobutton(fr, text="1", variable=self.lsb_count, value=1, bg="#e6f2ff", font=("Arial", 12)).pack(side=LEFT, padx=5)
         Radiobutton(fr, text="2", variable=self.lsb_count, value=2, bg="#e6f2ff", font=("Arial", 12)).pack(side=LEFT, padx=5)
         Radiobutton(fr, text="3", variable=self.lsb_count, value=3, bg="#e6f2ff", font=("Arial", 12)).pack(side=LEFT, padx=5)
+        
         controllers = Frame(self.window, bg="#e6f2ff")
         controllers.pack(pady=10)
         Button(controllers, text="Encode Message", command=self.hiding, width=20, bg="#3b5998", fg="white", font=("Arial", 12, "bold")).pack(side=LEFT, padx=10)
@@ -54,7 +58,7 @@ class TextInImage:
     def disimage(self, img, x_position, tag):
         imgresized = img.resize((450, 280), Image.LANCZOS)
         img_dis = ImageTk.PhotoImage(imgresized)
-        self.image_dis.delete(tag)  # Remove previous image under this tag
+        self.image_dis.delete(tag) 
         self.image_dis.create_image(x_position, 160, anchor=CENTER, image=img_dis, tags=tag)
 
         if tag == "original":
@@ -66,7 +70,7 @@ class TextInImage:
         if not self.inimage:
             messagebox.showwarning("Warning", "Please select an image first.")
             return
-        self.text = self.textarea.get("1.0", END).strip() + '\0'
+        self.text = self.textarea.get("1.0", END).strip() + '\0'  
         if not self.text:
             messagebox.showwarning("Warning", "Please enter text to hide.")
             return
@@ -91,11 +95,27 @@ class TextInImage:
         self.disimage(self.res_image, x_position=700, tag="encoded")
 
     def appearing(self):
-        if not self.res_image:
-            messagebox.showwarning("Warning", "No encoded image found.")
+        if not self.inimage:
+            messagebox.showwarning("Warning", "No image selected.")
             return
-        img_array = np.array(self.res_image).flatten()
-        bits_to_use = self.lsb_count.get()
+        
+        
+        decoded_message = self.decoding(self.inimage, self.lsb_count.get())
+        if decoded_message:
+            messagebox.showinfo("Decoded Message from cover", decoded_message)
+        else:
+           
+            if not self.res_image:
+                messagebox.showwarning("Warning", "Nothing found.")
+                return
+            decoded_message = self.decoding(self.res_image, self.lsb_count.get())
+            if decoded_message:
+                messagebox.showinfo("text from cover", decoded_message)
+            else:
+                messagebox.showinfo("Decoded Message", "No message found.")
+
+    def decoding(self, img, bits_to_use):
+        img_array = np.array(img).flatten()
         textbin = ''.join(format(img_array[i] & ((1 << bits_to_use) - 1), f'0{bits_to_use}b') for i in range(len(img_array)))
         retrievet = ""
         for i in range(0, len(textbin), 8):
@@ -103,14 +123,14 @@ class TextInImage:
             if len(byte) < 8:
                 break
             char = chr(int(byte, 2))
-            if char == '\0':
+            if char == '\0':  
                 break
             retrievet += char
-        messagebox.showinfo("Decoded Message", retrievet)
+        return retrievet if all(0 <= ord(c) < 128 for c in retrievet) else None
 
     def save(self):
         if not self.res_image:
-            messagebox.showwarning("Warning", "No encoded image to save.")
+            messagebox.showwarning("Warning", "Nothing save.")
             return
         saving = filedialog.asksaveasfilename(defaultextension=".bmp", filetypes=[("BMP files", "*.bmp")])
         if saving:
