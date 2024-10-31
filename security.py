@@ -42,10 +42,8 @@ class TextInImage:
         Button(controllers, text="Encode Message", command=self.hiding, width=20, bg="#3b5998", fg="white", font=("Arial", 12, "bold")).pack(side=LEFT, padx=10)
         Button(controllers, text="Decode Message", command=self.appearing, width=20, bg="#e74c3c", fg="white", font=("Arial", 12, "bold")).pack(side=LEFT, padx=10)
         Button(controllers, text="Save Encoded Image", command=self.save, width=20, bg="#9C27B0", fg="white", font=("Arial", 12, "bold")).pack(side=LEFT, padx=10)
-
         self.image_dis = Canvas(self.window, width=1000, height=320, bg="white")
         self.image_dis.pack(pady=20)
-
         self.cover_dis = None
         self.result_dis = None
 
@@ -60,7 +58,6 @@ class TextInImage:
         img_dis = ImageTk.PhotoImage(imgresized)
         self.image_dis.delete(tag) 
         self.image_dis.create_image(x_position, 160, anchor=CENTER, image=img_dis, tags=tag)
-
         if tag == "original":
             self.cover_dis = img_dis
         else:
@@ -98,13 +95,10 @@ class TextInImage:
         if not self.inimage:
             messagebox.showwarning("Warning", "No image selected.")
             return
-        
-        
         decoded_message = self.decoding(self.inimage, self.lsb_count.get())
         if decoded_message:
             messagebox.showinfo("Decoded Message", decoded_message)
         else:
-           
             if not self.res_image:
                 messagebox.showwarning("Warning", "Nothing found.")
                 return
